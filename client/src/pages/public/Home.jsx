@@ -5,7 +5,7 @@ const Home = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-purple-300">
+    <div className=" bg-gradient-to-b from-white to-purple-300">
    
     <div className="text-center py-20">
       <h1 className="text-5xl font-extrabold text-gray-900 mb-6">
@@ -14,12 +14,24 @@ const Home = () => {
       <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
         Explore Your Job Opportunities
       </p>
-      <div className="bg-white rounded-full shadow-md flex items-center overflow-hidden border pr-4 px-2 py-1"> 
-        <input type="text" placeholder="Enter Your Skill" className="flex-1 px-6 py-8 text-gray-500 outline-none " />
-        <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-4 rounded-full">Search</button>
+      <div className="mt-10 bg-white rounded-full shadow-xl flex items-center gap-4 px-6 py-3 w-[70%] h-15 ml-10"> 
+        <input type="text" placeholder="Enter Your Skill" className="flex-1 outline-none " />
+
+        <select className='outline-none text-gray-500'>
+          <option>Select Experience</option>
+          <option>fresher</option>
+          <option>1-3 Years Experience</option>
+          <option>3+ Years Experience</option>
+        </select>
+
+        <button className="bg-yellow-400 hover:bg-yellow-500 text-bold px-8 py-4 rounded-full h-10 w-[15%] flex items-center">Search</button>
       </div>
       <br />
       <br />
+
+      <div className='mt-10 md:'>
+
+      </div>
       
       <div className="space-x-4">
         {user ? (

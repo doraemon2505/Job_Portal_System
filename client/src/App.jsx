@@ -18,6 +18,7 @@ import ProtectedRoute from './route/ProtectedRoute';
 import PublicRoute from './route/PublicRoute';
 import Job from './pages/public/Job';
 import Contact from './pages/public/Contact';
+import AdminContacts from './pages/admin/AdminContacts';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
       {/* Admin Routes with Admin Layout */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="contacts" element={<AdminContacts />} />
       </Route>
       
       {/* Fallback */}
