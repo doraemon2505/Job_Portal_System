@@ -96,9 +96,32 @@ const getMe = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({role:"user"})
+      .select("-password") // remove password field
+      .sort({ createdAt: -1 }); // newest first
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+    });
+  }
+};
+
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   getMe,
+  getAllUsers
 };
