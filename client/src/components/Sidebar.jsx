@@ -11,7 +11,10 @@ const Sidebar = () => {
       </div>
       <nav className="flex-1 p-4 space-y-2">
         <Link to="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</Link>
-        <Link to="/admin/contacts" className="block py-2 px-4 hover:bg-gray-700 rounded">Contact</Link>
+        <Link to="/admin/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
+        <Link to="/admin/contact" className="block py-2 px-4 hover:bg-gray-700 rounded">Contacts</Link>
+        <Link to="/admin/job" className="block py-2 px-4 hover:bg-gray-700 rounded">Jobs</Link>
+        <Link to="/admin/application" className="block py-2 px-4 hover:bg-gray-700 rounded">Applications</Link>
         <Link to="/" className="block py-2 px-4 hover:bg-gray-700 rounded text-gray-400">Back to Site</Link>
       </nav>
       <div className="p-4 border-t border-gray-700">

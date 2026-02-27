@@ -16,9 +16,14 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 // Route Guards
 import ProtectedRoute from './route/ProtectedRoute';
 import PublicRoute from './route/PublicRoute';
-import Job from './pages/public/Job';
-import Contact from './pages/public/Contact';
-import AdminContacts from './pages/admin/AdminContacts';
+import ContactUs from './pages/public/ContactUs';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminContact from './pages/admin/AdminContact';
+import AdminJob from './pages/admin/AdminJob';
+import Jobs from './pages/public/Jobs';
+import JobDetails from './pages/public/JobDetails';
+import AdminApplicaion from './pages/admin/AdminApplicaion';
+import MyApplications from './pages/public/MyApplications';
 
 function App() {
   return (
@@ -27,8 +32,11 @@ function App() {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
-        <Route path="contact" element={<Contact />} />
-        <Route path="job" element={<Job />} />
+        <Route path="contact" element={<ContactUs />} />
+        <Route path="jobs" element={<Jobs />} />
+        <Route path="jobs/:id" element={<JobDetails />} />
+        <Route path="jobs/:id" element={<JobDetails />} />
+        <Route path="my-applications" element={<MyApplications />} />
         
         {/* Only accessible if NOT logged in */}
         <Route 
@@ -62,7 +70,10 @@ function App() {
       {/* Admin Routes with Admin Layout */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
-        <Route path="contacts" element={<AdminContacts />} />
+        <Route path='users' element={<AdminUsers />} />
+        <Route path='contact' element={<AdminContact />} />
+        <Route path='job' element={<AdminJob />} />
+        <Route path='application' element={<AdminApplicaion />} />
       </Route>
       
       {/* Fallback */}
