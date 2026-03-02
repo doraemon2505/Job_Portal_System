@@ -72,8 +72,8 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path='users' element={<AdminUsers />} />
         <Route path='contact' element={<AdminContact />} />
-        <Route path='job' element={<AdminJob />} />
-        <Route path='application' element={<AdminApplicaion />} />
+        <Route path='jobs' element={<AdminJob />} />
+        <Route path='applications' element={<AdminApplicaion />} />
       </Route>
       
       {/* Fallback */}
