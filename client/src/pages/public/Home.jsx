@@ -318,7 +318,7 @@ const Home = () => {
             className="mt-6 text-slate-300 text-lg md:text-xl max-w-2xl leading-relaxed animate-slide-up font-light"
             style={{ animationDelay: "0.35s" }}
           >
-            Join over <strong className="text-white font-semibold">50,000+ professionals</strong> who found their dream jobs through HireWave. Apply in seconds, track in real-time.
+            Join over <strong className="text-white font-semibold">50,000+ professionals</strong> who found their dream jobs through HireSetu. Apply in seconds, track in real-time.
           </p>
 
           {/* Search Bar */}
@@ -672,7 +672,7 @@ const Home = () => {
             Your Dream Job is<br />One Click Away
           </h2>
           <p className="text-violet-200 text-lg max-w-xl mx-auto mb-10">
-            Stop applying blindly. Start your smart job search with HireWave today.
+            Stop applying blindly. Start your smart job search with HireSetu today.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             {!user && (
