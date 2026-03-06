@@ -241,13 +241,6 @@ const Register = () => {
           {/* ════ RIGHT SIDE — Brand panel (slides in from right) ════ */}
           <div className="slide-in-right flex flex-col justify-between px-8 pt-6 pb-10 md:px-16 md:py-16 md:w-[55%]">
 
-            {/* Top: Logo
-            <div className="flex items-center gap-3 justify-end">
-              <span className="text-white text-base font-semibold tracking-tight">JobPortal</span>
-              <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 backdrop-blur-sm flex items-center justify-center">
-                <Briefcase size={17} className="text-white" />
-              </div>
-            </div> */}
 
             {/* Middle: Hero text + perks */}
             <div className="my-auto py-12 md:py-0 md:text-right md:pr-35">
