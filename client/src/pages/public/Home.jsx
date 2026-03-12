@@ -694,21 +694,84 @@ const Home = () => {
       </section>
 
       {/* ── FOOTER MINI ───────────────────────────────── */}
-      <footer className="bg-slate-900 dark:bg-slate-950 border-t border-slate-800 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-white font-display font-black text-lg">
-            <Briefcase size={18} className="text-violet-500" />
-            Hire<span className="text-violet-500">Setu</span>
-          </div>
-          <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} HireSetu. Built with ❤️ for job seekers everywhere.
-          </p>
-          <div className="flex items-center gap-4 text-slate-400 text-sm">
-            <Link to="/about" className="hover:text-white transition-colors">About</Link>
-            <Link to="/contact" className="hover:text-white transition-colors">Contact</Link>
-          </div>
+
+      <footer className="bg-brown border-t border-slate-200 py-12 text-slate-600">
+  <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-8">
+    
+    {/* Column 1: Logo and Socials */}
+  {/* Column 1: Logo and Socials */}
+<div className="md:col-span-1 flex flex-col gap-6">
+  
+  {/* Logo Section */}
+  <div className="flex items-center gap-2">
+    <Briefcase size={24} className="text-violet-500" />
+    <h2 className="text-2xl font-bold tracking-tight">
+      Hire <span className="text-violet-500">Setu</span>
+    </h2>
+  </div>
+
+  {/* Connect Section - Ab ye logo ke niche aayega */}
+  <div className="flex flex-col gap-3">
+    <p className="text-slate-400 text-sm">Connect with us</p>
+    <div className="flex gap-4 items-center">
+      {/* Aap icons use kar sakte hain ya img tags */}
+      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">f</span>
+      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">i</span>
+      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">X</span>
+      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">in</span>
+    </div>
+  </div>
+
+</div>
+    {/* Column 2: Links */}
+    <div>
+      <ul className="space-y-3 text-sm">
+        <li className="hover:font-semibold cursor-pointer">About us</li>
+        <li className="hover:font-semibold cursor-pointer">Careers</li>
+        <li className="hover:font-semibold cursor-pointer">Employer home</li>
+        <li className="hover:font-semibold cursor-pointer">Sitemap</li>
+        <li className="hover:font-semibold cursor-pointer">Credits</li>
+      </ul>
+    </div>
+
+    {/* Column 3: Support */}
+    <div>
+      <ul className="space-y-3 text-sm">
+        <li className="hover:font-semibold cursor-pointer">Help center</li>
+        <li className="hover:font-semibold cursor-pointer">Summons/Notices</li>
+        <li className="hover:font-semibold cursor-pointer">Grievances</li>
+        <li className="hover:font-semibold cursor-pointer">Report issue</li>
+      </ul>
+    </div>
+
+    {/* Column 4: Policy */}
+    <div>
+      <ul className="space-y-3 text-sm">
+        <li className="hover:font-semibold cursor-pointer">Privacy policy</li>
+        <li className="hover:font-semibold cursor-pointer">Terms & conditions</li>
+        <li className="hover:font-semibold cursor-pointer">Fraud alert</li>
+        <li className="hover:font-semibold cursor-pointer">Trust & safety</li>
+      </ul>
+    </div>
+
+    {/* Column 5: App Download Box */}
+    <div className="md:col-span-1 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+      <h3 className="font-bold text-slate-900 mb-2">Apply on the go</h3>
+      <p className="text-xs mb-4">Get real-time job updates on our App</p>
+      <div className="space-y-3">
+        {/* Play Store Button Placeholder */}
+        <div className="bg-black text-white p-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
+          <span className="text-[10px] leading-tight text-left">GET IT ON <br/><span className="text-sm font-bold">Google Play</span></span>
         </div>
-      </footer>
+        {/* App Store Button Placeholder */}
+        <div className="bg-black text-white p-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
+          <span className="text-[10px] leading-tight text-left">Download on the <br/><span className="text-sm font-bold">App Store</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</footer>
 
     </div>
   );
