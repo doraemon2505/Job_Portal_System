@@ -1,121 +1,10 @@
-// import React, { useState } from "react";
-// import api from "../../services/api";
-
-// const ApplyModal = ({ open, setOpen, jobId }) => {
-//     const [loading, setLoading] = useState(false);
-
-//     const [formData, setFormData] = useState({
-//         name: "",
-//         email: "",
-//         phone: "",
-//     });
-
-//     const handleChange = (e) => {
-//         setFormData({
-//             ...formData,
-//             [e.target.name]: e.target.value,
-//         });
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-
-//         try {
-//             setLoading(true);
-
-//             await api.post("/application", {
-//                 jobId,
-//                 ...formData,
-//             });
-
-//             alert("Application Submitted Successfully ✅");
-
-//             // Reset form
-//             setFormData({
-//                 name: "",
-//                 email: "",
-//                 phone: "",
-//             });
-
-//             setOpen(false);
-
-//         } catch (err) {
-//             console.error(err.response?.data || err.message);
-
-//             alert(
-//                 err.response?.data?.message ||
-//                 "Something went wrong ❌"
-//             );
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     if (!open) return null;
-
-//     return (
-//         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-//             <div className="bg-white w-full max-w-lg p-8 rounded-2xl shadow-xl">
-
-//                 <div className="flex justify-between mb-4">
-//                     <h2 className="text-xl font-bold">Apply for Job</h2>
-//                     <button onClick={() => setOpen(false)}>✕</button>
-//                 </div>
-
-//                 <form onSubmit={handleSubmit} className="space-y-4">
-
-//                     <input
-//                         name="name"
-//                         placeholder="Full Name"
-//                         required
-//                         value={formData.name}
-//                         onChange={handleChange}
-//                         className="w-full border p-3 rounded-lg"
-//                     />
-
-//                     <input
-//                         type="email"
-//                         name="email"
-//                         placeholder="Email"
-//                         required
-//                         value={formData.email}
-//                         onChange={handleChange}
-//                         className="w-full border p-3 rounded-lg"
-//                     />
-
-//                     <input
-//                         name="phone"
-//                         placeholder="Phone"
-//                         required
-//                         value={formData.phone}
-//                         onChange={handleChange}
-//                         className="w-full border p-3 rounded-lg"
-//                     />
-
-//                     <button
-//                         type="submit"
-//                         disabled={loading}
-//                         className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition"
-//                     >
-//                         {loading ? "Submitting..." : "Submit Application"}
-//                     </button>
-
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default ApplyModal;
-
-// components/public/ApplyModal.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import {
   X, User, Mail, Phone, FileText, Link as LinkIcon,
-  Upload, CheckCircle2, Loader2, AlertCircle, Briefcase,
-  Github, ExternalLink, Trash2, Info, Sparkles
+  CheckCircle2, Loader2, AlertCircle, Briefcase,
+  Github, ExternalLink, Info, Sparkles, AlertTriangle
 } from "lucide-react";
 
 const STYLES = `
@@ -136,7 +25,13 @@ const STYLES = `
 
 const INPUT_BASE = "w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 outline-none transition-all focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400";
 
-const MAX_PDF = 5 * 1024 * 1024; // 5MB
+const MAX_PDF = 5 * 1024 * 1024; // kept for reference, no longer used
+
+// Validate Google Drive link
+const isValidDriveUrl = (url) => {
+  if (!url || !url.trim()) return false;
+  return url.includes("drive.google.com") || url.includes("docs.google.com");
+};
 
 const Field = ({ label, required, error, hint, badge, children }) => (
   <div>
@@ -158,23 +53,23 @@ const Field = ({ label, required, error, hint, badge, children }) => (
 
 const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
   const { user } = useAuth();
-  const resumeRef = useRef();
-  const [loading,  setLoading]  = useState(false);
-  const [success,  setSuccess]  = useState(false);
+  const [loading,    setLoading]    = useState(false);
+  const [success,    setSuccess]    = useState(false);
   const [autoFilled, setAutoFilled] = useState([]);
+  const [driveToast, setDriveToast] = useState(false); // invalid link warning
 
   const EMPTY = {
     name: "", email: "", phone: "",
-    resumeFile: null, resumeName: "",
+    resumeUrl: "",
     coverLetter: "", portfolioUrl: "", githubUrl: "",
   };
 
-  const [form, setForm]     = useState(EMPTY);
+  const [form,   setForm]   = useState(EMPTY);
   const [errors, setErrors] = useState({});
 
   // Auto-fill from logged-in user
   useEffect(() => {
-    if (!open) { setSuccess(false); return; }
+    if (!open) { setSuccess(false); setDriveToast(false); return; }
     if (user) {
       const filled = [];
       const updates = {};
@@ -194,13 +89,13 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
 
   const handleChange = (e) => set(e.target.name, e.target.value);
 
-  const handleResume = (file) => {
-    if (!file) return;
-    if (file.type !== "application/pdf") { setErrors(e => ({ ...e, resume: "Only PDF files allowed" })); return; }
-    if (file.size > MAX_PDF)             { setErrors(e => ({ ...e, resume: "Max file size is 5MB" }));    return; }
-    setErrors(e => ({ ...e, resume: "" }));
-    set("resumeFile", file);
-    set("resumeName", file.name);
+  // Validate Google Drive link on blur
+  const handleResumeBlur = () => {
+    if (form.resumeUrl.trim() && !isValidDriveUrl(form.resumeUrl)) {
+      setDriveToast(true);
+      setTimeout(() => setDriveToast(false), 4000);
+      setErrors(e => ({ ...e, resumeUrl: "Please upload a Google Drive share link (drive.google.com)" }));
+    }
   };
 
   const validate = () => {
@@ -209,7 +104,11 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
     if (!form.email.trim()) e.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email";
     if (!form.phone.trim()) e.phone = "Phone number is required";
-    if (!form.resumeFile)   e.resume = "Resume (PDF) is required";
+    if (!form.resumeUrl.trim()) {
+      e.resumeUrl = "Resume Google Drive link is required";
+    } else if (!isValidDriveUrl(form.resumeUrl)) {
+      e.resumeUrl = "Please upload a Google Drive share link";
+    }
     return e;
   };
 
@@ -222,32 +121,19 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
 
     try {
       setLoading(true);
-      // Build FormData for file upload
-      const fd = new FormData();
-      fd.append("jobId",        jobId);
-      fd.append("name",         form.name);
-      fd.append("email",        form.email);
-      fd.append("phone",        form.phone);
-      fd.append("coverLetter",  form.coverLetter);
-      fd.append("portfolioUrl", form.portfolioUrl);
-      fd.append("githubUrl",    form.githubUrl);
-      fd.append("resume",       form.resumeFile);
-
-      await api.post("/application", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await api.post("/application", {
+        jobId,
+        name:         form.name,
+        email:        form.email,
+        phone:        form.phone,
+        resumeUrl:    form.resumeUrl,
+        coverLetter:  form.coverLetter,
+        portfolioUrl: form.portfolioUrl,
+        githubUrl:    form.githubUrl,
       });
       setSuccess(true);
     } catch (err) {
-      // Fallback: try JSON without file
-      try {
-        await api.post("/application", {
-          jobId, name: form.name, email: form.email, phone: form.phone,
-          coverLetter: form.coverLetter, portfolioUrl: form.portfolioUrl, githubUrl: form.githubUrl,
-        });
-        setSuccess(true);
-      } catch (err2) {
-        setErrors({ submit: err2.response?.data?.message || "Submission failed. Please try again." });
-      }
+      setErrors({ submit: err.response?.data?.message || "Submission failed. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -255,7 +141,7 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
 
   const handleClose = () => {
     setOpen(false);
-    setTimeout(() => { setForm(EMPTY); setErrors({}); setSuccess(false); setAutoFilled([]); }, 300);
+    setTimeout(() => { setForm(EMPTY); setErrors({}); setSuccess(false); setAutoFilled([]); setDriveToast(false); }, 300);
   };
 
   if (!open) return null;
@@ -307,7 +193,20 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
           </div>
         ) : (
           <>
-            {/* Auto-fill notice */}
+        {/* Drive link toast warning */}
+        {driveToast && (
+          <div className="mx-4 mt-3 flex items-start gap-2.5 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl flex-shrink-0 animate-slide-up">
+            <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-bold text-amber-800 dark:text-amber-300">Invalid Resume Link</p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                Please paste a <strong>Google Drive share link</strong> (drive.google.com). 
+                Upload your PDF to Google Drive → Share → Copy Link.
+              </p>
+            </div>
+            <button onClick={() => setDriveToast(false)} className="text-amber-400 hover:text-amber-600 flex-shrink-0 ml-auto"><X size={13} /></button>
+          </div>
+        )}
             {user && autoFilled.length > 0 && (
               <div className="mx-6 mt-4 flex items-center gap-2.5 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl flex-shrink-0">
                 <Sparkles size={15} className="text-violet-600 dark:text-violet-400 flex-shrink-0" />
@@ -346,38 +245,40 @@ const ApplyModal = ({ open, setOpen, jobId, jobTitle, companyName }) => {
                 </Field>
               </div>
 
-              {/* Resume */}
-              <Field label="Resume" required error={errors.resume} hint="PDF only · Max 5MB">
-                {form.resumeFile ? (
-                  <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                    <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FileText size={20} className="text-red-600 dark:text-red-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">{form.resumeName}</p>
-                      <p className="text-xs text-slate-400">{(form.resumeFile.size / 1024 / 1024).toFixed(2)} MB · PDF</p>
-                    </div>
-                    <button type="button" onClick={() => { set("resumeFile", null); set("resumeName", ""); }} className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
-                      <Trash2 size={14} />
-                    </button>
+              {/* Resume — Google Drive Link */}
+              <Field
+                label="Resume"
+                required
+                error={errors.resumeUrl}
+                hint='Upload your CV to Google Drive → Share → "Anyone with link" → paste link here'
+              >
+                <div className="relative">
+                  {/* Google Drive icon */}
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4"><path d="M6.6 0L0 11l3.3 5.7L9.9 5.7z" fill="#0F9D58"/><path d="M17.4 0H6.6l6.6 11h10.8z" fill="#4285F4"/><path d="M16.5 16.7L13.2 11H2.4L0 16.7z" fill="#FBBC05"/><path d="M20.1 11h-6.9l3.3 5.7 3.6-5.7z" fill="#EA4335"/></svg>
                   </div>
-                ) : (
-                  <div
-                    onClick={() => resumeRef.current.click()}
-                    className={`cursor-pointer border-2 border-dashed rounded-xl p-6 text-center transition-all hover:border-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-900/10 ${errors.resume ? "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10" : "border-slate-200 dark:border-slate-700"}`}
+                  <input
+                    name="resumeUrl"
+                    value={form.resumeUrl}
+                    onChange={handleChange}
+                    onBlur={handleResumeBlur}
+                    placeholder="https://drive.google.com/file/d/..."
+                    className={`${INPUT_BASE} pl-10 ${errors.resumeUrl ? "border-red-400 focus:ring-red-400/20" : isValidDriveUrl(form.resumeUrl) ? "border-emerald-400 focus:ring-emerald-400/20 bg-emerald-50 dark:bg-emerald-900/10" : ""}`}
+                  />
+                  {isValidDriveUrl(form.resumeUrl) && (
+                    <CheckCircle2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-500" />
+                  )}
+                </div>
+                {isValidDriveUrl(form.resumeUrl) && (
+                  <a
+                    href={form.resumeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 font-semibold hover:underline"
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
-                        <Upload size={20} className="text-slate-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Upload your resume</p>
-                        <p className="text-xs text-slate-400 mt-0.5">PDF only · Maximum 5MB</p>
-                      </div>
-                    </div>
-                  </div>
+                    <ExternalLink size={11} /> Preview your Google Drive link
+                  </a>
                 )}
-                <input ref={resumeRef} type="file" accept=".pdf,application/pdf" className="hidden" onChange={(e) => handleResume(e.target.files[0])} />
               </Field>
 
               {/* Links */}

@@ -6,10 +6,10 @@ const Job = require("../model/Job");
 exports.createApplication = async (req, res) => {
     try {
 
-        const { jobId, name, email, phone } = req.body;
+        const { jobId, name, email, phone, resumeUrl } = req.body;
         const userId = req.user.id;
 
-        if (!jobId || !name || !email || !phone) {
+        if (!jobId || !name || !email || !phone || !resumeUrl) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required",
@@ -43,6 +43,7 @@ exports.createApplication = async (req, res) => {
             name,
             email,
             phone,
+            resumeUrl,  
             status: "pending",
         });
 

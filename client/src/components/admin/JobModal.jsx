@@ -1,174 +1,11 @@
-// import React, { useEffect, useState } from "react";
-// import api from "../../services/api";
-
-// const JobModal = ({ open, setOpen, editData, refreshJobs }) => {
-//     const isEdit = Boolean(editData);
-//     const [loading, setLoading] = useState(false);
-
-//     const [formData, setFormData] = useState({
-//         title: "",
-//         description: "",
-//         requirements: "",
-//         salaryMin: "",
-//         salaryMax: "",
-//         location: "",
-//         jobType: "full-time",
-//         experienceRequired: "",
-//         thumbnail: "", // now URL
-//         companyName: "",
-//         companyLogo: "",
-//         companyWebsite: "",
-//         companyLocation: "",
-//         isActive: true,
-//     });
-
-//     // Prefill
-//     useEffect(() => {
-//         if (editData) {
-//             setFormData({
-//                 title: editData.title || "",
-//                 description: editData.description || "",
-//                 requirements: editData.requirements?.join(",") || "",
-//                 salaryMin: editData.salary?.min || "",
-//                 salaryMax: editData.salary?.max || "",
-//                 location: editData.location || "",
-//                 jobType: editData.jobType || "full-time",
-//                 experienceRequired: editData.experienceRequired || "",
-//                 thumbnail: editData.thumbnail || "",
-//                 companyName: editData.company?.name || "",
-//                 companyLogo: editData.company?.logo || "",
-//                 companyWebsite: editData.company?.website || "",
-//                 companyLocation: editData.company?.location || "",
-//                 isActive: editData.isActive ?? true,
-//             });
-//         }
-//     }, [editData]);
-
-//     const handleChange = (e) => {
-//         const { name, value, type, checked } = e.target;
-//         setFormData({
-//             ...formData,
-//             [name]: type === "checkbox" ? checked : value,
-//         });
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         try {
-//             setLoading(true);
-
-//             if (isEdit) {
-//                 await api.put(`/job/${editData._id}`, formData);
-//                 alert("Job Updated ✅");
-//             } else {
-//                 await api.post("/job", formData);
-//                 alert("Job Created ✅");
-//             }
-
-//             setOpen(false);
-//             refreshJobs();
-//         } catch (err) {
-//             console.error(err);
-//             alert("Something went wrong ❌");
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     if (!open) return null;
-
-//     return (
-//         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-//             <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl p-8 overflow-y-auto max-h-[90vh]">
-
-//                 <div className="flex justify-between items-center mb-6">
-//                     <h2 className="text-2xl font-bold">
-//                         {isEdit ? "Edit Job" : "Create Job"}
-//                     </h2>
-//                     <button onClick={() => setOpen(false)}>✕</button>
-//                 </div>
-
-//                 <form onSubmit={handleSubmit} className="space-y-4">
-
-//                     <input name="title" value={formData.title} onChange={handleChange} placeholder="Job Title" required className="w-full border p-3 rounded-lg" />
-
-//                     <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" required className="w-full border p-3 rounded-lg" />
-
-//                     <input name="requirements" value={formData.requirements} onChange={handleChange} placeholder="Requirements (comma separated)" className="w-full border p-3 rounded-lg" />
-
-//                     <div className="grid grid-cols-2 gap-4">
-//                         <input type="number" name="salaryMin" value={formData.salaryMin} onChange={handleChange} placeholder="Min Salary" className="border p-3 rounded-lg" />
-//                         <input type="number" name="salaryMax" value={formData.salaryMax} onChange={handleChange} placeholder="Max Salary" className="border p-3 rounded-lg" />
-//                     </div>
-
-//                     <input name="location" value={formData.location} onChange={handleChange} placeholder="Location" required className="w-full border p-3 rounded-lg" />
-
-//                     <select name="jobType" value={formData.jobType} onChange={handleChange} className="w-full border p-3 rounded-lg">
-//                         <option value="full-time">Full Time</option>
-//                         <option value="part-time">Part Time</option>
-//                         <option value="remote">Remote</option>
-//                         <option value="internship">Internship</option>
-//                         <option value="contract">Contract</option>
-//                     </select>
-
-//                     <input type="number" name="experienceRequired" value={formData.experienceRequired} onChange={handleChange} placeholder="Experience Required (Years)" className="w-full border p-3 rounded-lg" />
-
-//                     {/* Thumbnail URL */}
-//                     <div>
-//                         <label className="block font-medium mb-2">Thumbnail URL</label>
-//                         <input
-//                             name="thumbnail"
-//                             value={formData.thumbnail}
-//                             onChange={handleChange}
-//                             placeholder="Paste image URL here"
-//                             className="w-full border p-3 rounded-lg"
-//                         />
-
-//                         {formData.thumbnail && (
-//                             <div className="mt-4">
-//                                 <img
-//                                     src={formData.thumbnail}
-//                                     alt="Preview"
-//                                     className="w-40 h-40 object-cover rounded-xl border shadow"
-//                                     onError={(e) => e.target.style.display = "none"}
-//                                 />
-//                             </div>
-//                         )}
-//                     </div>
-
-//                     <h3 className="font-semibold mt-6 text-lg border-t pt-4">Company Info</h3>
-
-//                     <input name="companyName" value={formData.companyName} onChange={handleChange} placeholder="Company Name" required className="w-full border p-3 rounded-lg" />
-//                     <input name="companyLogo" value={formData.companyLogo} onChange={handleChange} placeholder="Company Logo URL" className="w-full border p-3 rounded-lg" />
-//                     <input name="companyWebsite" value={formData.companyWebsite} onChange={handleChange} placeholder="Website" className="w-full border p-3 rounded-lg" />
-//                     <input name="companyLocation" value={formData.companyLocation} onChange={handleChange} placeholder="Company Location" className="w-full border p-3 rounded-lg" />
-
-//                     <div className="flex items-center gap-2">
-//                         <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} />
-//                         <label>Active</label>
-//                     </div>
-
-//                     <button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold">
-//                         {loading ? "Processing..." : isEdit ? "Update Job" : "Create Job"}
-//                     </button>
-
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default JobModal;
-
-
 // components/admin/JobModal.jsx
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import {
   X, Briefcase, MapPin, DollarSign, Clock, Building2,
-  Globe, Image as ImageIcon, Eye, EyeOff, Upload,
+  Globe, Image as ImageIcon, Eye, EyeOff,
   CheckCircle2, ChevronDown, Loader2, AlertCircle,
-  FileText, Link as LinkIcon, Trash2, Info
+  Link as LinkIcon, Info
 } from "lucide-react";
 
 const STYLES = `
@@ -186,37 +23,6 @@ const STYLES = `
 const INPUT_BASE = "w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 outline-none transition-all focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400";
 const LABEL_BASE = "block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
-// Resize image via canvas
-const resizeImage = (file, maxW, maxH) =>
-  new Promise((resolve) => {
-    const img = new window.Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      let { width: w, height: h } = img;
-      if (w > maxW || h > maxH) {
-        const ratio = Math.min(maxW / w, maxH / h);
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
-      }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => { URL.revokeObjectURL(url); resolve(blob); }, file.type, 0.85);
-    };
-    img.src = url;
-  });
-
-// Convert blob to base64
-const toBase64 = (blob) =>
-  new Promise((res) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.readAsDataURL(blob);
-  });
-
 // ── Field Component ────────────────────────────────────────────────────────────
 const Field = ({ label, required, error, children, hint }) => (
   <div className="field-group">
@@ -229,78 +35,36 @@ const Field = ({ label, required, error, children, hint }) => (
   </div>
 );
 
-// ── Image Uploader ─────────────────────────────────────────────────────────────
-const ImageUploader = ({ label, value, onChange, maxW, maxH, hint }) => {
-  const ref = useRef();
-  const [dragOver, setDragOver] = useState(false);
-  const [error, setError] = useState("");
-  const [processing, setProcessing] = useState(false);
-
-  const process = async (file) => {
-    setError("");
-    if (!ALLOWED_TYPES.includes(file.type)) { setError("Only JPG, PNG, WebP allowed"); return; }
-    if (file.size > MAX_FILE_SIZE) { setError("Max file size is 5MB"); return; }
-    setProcessing(true);
-    try {
-      const resized = await resizeImage(file, maxW, maxH);
-      const b64 = await toBase64(resized);
-      onChange(b64);
-    } catch { setError("Failed to process image"); }
-    finally { setProcessing(false); }
-  };
-
-  const onDrop = useCallback((e) => {
-    e.preventDefault(); setDragOver(false);
-    const f = e.dataTransfer.files[0];
-    if (f) process(f);
-  }, []);
-
-  return (
-    <div>
-      <label className={LABEL_BASE}>{label}</label>
-      {value ? (
-        <div className="relative group rounded-xl overflow-hidden border-2 border-violet-300 dark:border-violet-700">
-          <img src={value} alt="preview" className="w-full object-cover" style={{ maxHeight: maxH === 300 ? "120px" : "160px" }} />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-            <button type="button" onClick={() => ref.current.click()} className="px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-semibold hover:bg-slate-100 transition-colors flex items-center gap-1.5">
-              <Upload size={12} /> Replace
-            </button>
-            <button type="button" onClick={() => onChange("")} className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors flex items-center gap-1.5">
-              <Trash2 size={12} /> Remove
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={onDrop}
-          onClick={() => ref.current.click()}
-          className={`cursor-pointer border-2 border-dashed rounded-xl p-6 text-center transition-all ${dragOver ? "border-violet-500 bg-violet-50 dark:bg-violet-900/10" : "border-slate-200 dark:border-slate-700 hover:border-violet-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}
-        >
-          {processing ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 size={24} className="text-violet-500 animate-spin" />
-              <p className="text-sm text-slate-500 font-medium">Processing image...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
-                <ImageIcon size={20} className="text-slate-400" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Drop image here or <span className="text-violet-600 dark:text-violet-400">browse</span></p>
-                <p className="text-xs text-slate-400 mt-0.5">{hint}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      <input ref={ref} type="file" accept={ALLOWED_TYPES.join(",")} className="hidden" onChange={(e) => e.target.files[0] && process(e.target.files[0])} />
-      {error && <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1"><AlertCircle size={11} />{error}</p>}
+// ── Image URL Input ────────────────────────────────────────────────────────────
+const ImageUrlInput = ({ label, value, onChange, placeholder, hint }) => (
+  <div className="field-group">
+    <label className={LABEL_BASE}>{label}</label>
+    <div className="relative">
+      <ImageIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+      <input
+        type="url"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`${INPUT_BASE} pl-10`}
+      />
     </div>
-  );
-};
+    {hint && <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1"><Info size={11} />{hint}</p>}
+    {value && (
+      <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+        <img
+          src={value}
+          alt="preview"
+          className="w-full object-cover max-h-40"
+          onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+        />
+        <div className="hidden items-center justify-center gap-2 py-4 text-slate-400 text-xs">
+          <ImageIcon size={16} /> Image not found or invalid URL
+        </div>
+      </div>
+    )}
+  </div>
+);
 
 // ── Preview Card ───────────────────────────────────────────────────────────────
 const PreviewCard = ({ form }) => {
@@ -524,8 +288,20 @@ const JobModal = ({ open, setOpen, editData, refreshJobs }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <Field label="Job Type" required>
                       <div className="relative">
-                        <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <select name="jobType" value={form.jobType} onChange={handleChange} className={`${INPUT_BASE} pl-10 appearance-none cursor-pointer`}>
+                        <Briefcase size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" />
+                        <select
+                          name="jobType"
+                          value={form.jobType}
+                          onChange={handleChange}
+                          className={`${INPUT_BASE} pl-10 appearance-none cursor-pointer font-semibold ${
+                            form.jobType === "full-time"  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" :
+                            form.jobType === "part-time"  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800" :
+                            form.jobType === "remote"     ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800" :
+                            form.jobType === "internship" ? "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800" :
+                            form.jobType === "contract"   ? "bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800" :
+                            ""
+                          }`}
+                        >
                           <option value="full-time">Full Time</option>
                           <option value="part-time">Part Time</option>
                           <option value="remote">Remote</option>
@@ -637,24 +413,24 @@ const JobModal = ({ open, setOpen, editData, refreshJobs }) => {
                     </div>
                   </Field>
 
-                  <ImageUploader
-                    label="Company Logo"
+                  <ImageUrlInput
+                    label="Company Logo URL"
                     value={form.companyLogo}
                     onChange={(v) => set("companyLogo", v)}
-                    maxW={300} maxH={300}
-                    hint="JPG, PNG, WebP · Max 5MB · Auto-resized to 300×300px"
+                    placeholder="https://cdn.example.com/company-logo.png"
+                    hint="Paste a direct image URL (hosted on Cloudinary, ImgBB, etc.)"
                   />
                 </>
               )}
 
               {/* ── TAB: MEDIA ── */}
               {activeTab === "media" && (
-                <ImageUploader
-                  label="Job Banner / Thumbnail"
+                <ImageUrlInput
+                  label="Job Banner / Thumbnail URL"
                   value={form.thumbnail}
                   onChange={(v) => set("thumbnail", v)}
-                  maxW={1200} maxH={400}
-                  hint="JPG, PNG, WebP · Max 5MB · Auto-resized to 1200×400px for best display"
+                  placeholder="https://cdn.example.com/job-banner.jpg"
+                  hint="Paste a direct image URL. Best size: 1200×400px. Hosted on Cloudinary, ImgBB, etc."
                 />
               )}
 
