@@ -10,6 +10,11 @@ import {
   Sparkles, Globe, Award
 } from "lucide-react";
 import jobbackground from "../../assets/jobbackground.jpeg";
+import {
+  // ... your existing imports ...
+  Facebook, Instagram, Twitter, Linkedin, Github,
+  Heart, Phone, Mail,
+} from "lucide-react";
 
 // ─── Animated Counter Hook ────────────────────────────────────────────────────
 const useCounter = (target, duration = 2000, start = false) => {
@@ -695,85 +700,211 @@ const Home = () => {
 
       {/* ── FOOTER MINI ───────────────────────────────── */}
 
-      <footer className="bg-brown border-t border-slate-200 py-12 text-slate-600">
-  <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-8">
-    
-    {/* Column 1: Logo and Socials */}
-  {/* Column 1: Logo and Socials */}
-<div className="md:col-span-1 flex flex-col gap-6">
-  
-  {/* Logo Section */}
-  <div className="flex items-center gap-2">
-    <Briefcase size={24} className="text-violet-500" />
-    <h2 className="text-2xl font-bold tracking-tight">
-      Hire <span className="text-violet-500">Setu</span>
-    </h2>
-  </div>
+{/* ── FOOTER ────────────────────────────────────── */}
+<footer className="bg-slate-950 border-t border-white/[0.06]">
 
-  {/* Connect Section - Ab ye logo ke niche aayega */}
-  <div className="flex flex-col gap-3">
-    <p className="text-slate-400 text-sm">Connect with us</p>
-    <div className="flex gap-4 items-center">
-      {/* Aap icons use kar sakte hain ya img tags */}
-      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">f</span>
-      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">i</span>
-      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">X</span>
-      <span className="hover:text-violet-500 cursor-pointer text-lg font-medium">in</span>
-    </div>
-  </div>
+  {/* Main grid */}
+  <div className="max-w-7xl mx-auto px-6 py-14">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8">
 
-</div>
-    {/* Column 2: Links */}
-    <div>
-      <ul className="space-y-3 text-sm">
-        <li className="hover:font-semibold cursor-pointer">About us</li>
-        <li className="hover:font-semibold cursor-pointer">Careers</li>
-        <li className="hover:font-semibold cursor-pointer">Employer home</li>
-        <li className="hover:font-semibold cursor-pointer">Sitemap</li>
-        <li className="hover:font-semibold cursor-pointer">Credits</li>
-      </ul>
-    </div>
+      {/* Brand column */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        <Link to="/" className="flex items-center gap-2.5 w-fit">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+            <Briefcase size={18} className="text-white" />
+          </div>
+          <span className="font-display text-xl font-black text-white tracking-tight">
+            Hire<span className="text-violet-400">Setu</span>
+          </span>
+        </Link>
 
-    {/* Column 3: Support */}
-    <div>
-      <ul className="space-y-3 text-sm">
-        <li className="hover:font-semibold cursor-pointer">Help center</li>
-        <li className="hover:font-semibold cursor-pointer">Summons/Notices</li>
-        <li className="hover:font-semibold cursor-pointer">Grievances</li>
-        <li className="hover:font-semibold cursor-pointer">Report issue</li>
-      </ul>
-    </div>
+        <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+          Connecting talent with opportunity — without the chaos.
+          No spam jobs, no fake listings, no nonsense.
+        </p>
 
-    {/* Column 4: Policy */}
-    <div>
-      <ul className="space-y-3 text-sm">
-        <li className="hover:font-semibold cursor-pointer">Privacy policy</li>
-        <li className="hover:font-semibold cursor-pointer">Terms & conditions</li>
-        <li className="hover:font-semibold cursor-pointer">Fraud alert</li>
-        <li className="hover:font-semibold cursor-pointer">Trust & safety</li>
-      </ul>
-    </div>
-
-    {/* Column 5: App Download Box */}
-    <div className="md:col-span-1 border border-slate-100 rounded-2xl p-6 bg-slate-50/50">
-      <h3 className="font-bold text-slate-900 mb-2">Apply on the go</h3>
-      <p className="text-xs mb-4">Get real-time job updates on our App</p>
-      <div className="space-y-3">
-        {/* Play Store Button Placeholder */}
-        <div className="bg-black text-white p-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
-          <span className="text-[10px] leading-tight text-left">GET IT ON <br/><span className="text-sm font-bold">Google Play</span></span>
+        {/* Contact */}
+        <div className="space-y-2.5">
+          {[
+            { icon: Mail,   label: "support@hiresetu.com", href: "mailto:support@hiresetu.com" },
+            { icon: Phone,  label: "+91 98765 43210",      href: "tel:+919876543210"           },
+            { icon: MapPin, label: "Mumbai, India",         href: null                          },
+          ].map(({ icon: Icon, label, href }) => (
+            href
+              ? <a key={label} href={href} className="flex items-center gap-2 text-slate-400 hover:text-violet-400 text-sm transition-colors">
+                  <Icon size={13} className="text-violet-500 flex-shrink-0" /> {label}
+                </a>
+              : <span key={label} className="flex items-center gap-2 text-slate-400 text-sm">
+                  <Icon size={13} className="text-violet-500 flex-shrink-0" /> {label}
+                </span>
+          ))}
         </div>
-        {/* App Store Button Placeholder */}
-        <div className="bg-black text-white p-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
-          <span className="text-[10px] leading-tight text-left">Download on the <br/><span className="text-sm font-bold">App Store</span></span>
+
+        {/* Socials */}
+        <div>
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">
+            Follow us
+          </p>
+          <div className="flex gap-2">
+            {[
+              { icon: Facebook,  href: "https://facebook.com",  label: "Facebook"  },
+              { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+              { icon: Twitter,   href: "https://twitter.com",   label: "Twitter"   },
+              { icon: Linkedin,  href: "https://linkedin.com",  label: "LinkedIn"  },
+              { icon: Github,    href: "https://github.com",    label: "GitHub"    },
+            ].map(({ icon: Icon, href, label }) => (
+              < a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-400 hover:bg-violet-600/20 hover:border-violet-500/40 hover:text-violet-400 hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <Icon size={15} />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
+      {/* Company links */}
+      <div className="lg:col-span-1">
+        <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-5">Company</h4>
+        <ul className="space-y-3">
+          {[
+            { label: "About Us",      to: "/about"   },
+            { label: "Contact Us",    to: "/contact" },
+            { label: "Browse Jobs",   to: "/jobs"    },
+            { label: "Careers",       to: "/jobs"    },
+            { label: "Employer Home", to: "/admin"   },
+          ].map(({ label, to }) => (
+            <li key={label}>
+              <Link
+                to={to}
+                className="text-slate-400 hover:text-violet-400 text-sm transition-colors"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Support links */}
+      <div className="lg:col-span-1">
+        <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-5">Support</h4>
+        <ul className="space-y-3">
+          {[
+            { label: "Help Center",       to: "/contact" },
+            { label: "Report an Issue",   to: "/contact" },
+            { label: "Grievances",        to: "/contact" },
+            { label: "Summons / Notices", to: "/contact" },
+          ].map(({ label, to }) => (
+            <li key={label}>
+              <Link
+                to={to}
+                className="text-slate-400 hover:text-violet-400 text-sm transition-colors"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Legal links */}
+      <div className="lg:col-span-1">
+        <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-5">Legal</h4>
+        <ul className="space-y-3">
+          {[
+            { label: "Privacy Policy",     to: "/privacy" },
+            { label: "Terms & Conditions", to: "/terms"   },
+            { label: "Fraud Alert",        to: "/terms"   },
+            { label: "Trust & Safety",     to: "/terms"   },
+          ].map(({ label, to }) => (
+            <li key={label}>
+              <Link
+                to={to}
+                className="text-slate-400 hover:text-violet-400 text-sm transition-colors"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* App download + CTA */}
+      <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+          <h4 className="text-white font-bold text-sm mb-1">Apply on the go</h4>
+          <p className="text-slate-400 text-xs mb-4">Get real-time job updates</p>
+          <div className="space-y-2.5">
+            {/* Google Play */}
+            <div className="bg-white/[0.06] border border-white/10 rounded-xl p-2.5 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="none">
+                <path d="M3.18 23.76a2 2 0 0 1-.68-.56 2 2 0 0 1-.5-1.34V2.14c0-.5.18-.97.5-1.34.2-.22.43-.4.68-.55L14 12 3.18 23.76Z" fill="#4285F4"/>
+                <path d="m14 12 3.22 3.22-10.8 6.22L14 12Z" fill="#34A853"/>
+                <path d="M20.47 10.18 17.22 8.34 14 12l3.22 3.22 3.28-1.85a2 2 0 0 0 0-3.19Z" fill="#FBBC05"/>
+                <path d="M6.42 2.56 14 12 10.78 15.22 3.18.24a2 2 0 0 1 3.24 2.32Z" fill="#EA4335"/>
+              </svg>
+              <div>
+                <p className="text-slate-400 text-[9px] leading-none uppercase tracking-wider">Get it on</p>
+                <p className="text-white text-xs font-bold mt-0.5">Google Play</p>
+              </div>
+            </div>
+            {/* App Store */}
+            <div className="bg-white/[0.06] border border-white/10 rounded-xl p-2.5 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="white">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <div>
+                <p className="text-slate-400 text-[9px] leading-none uppercase tracking-wider">Download on the</p>
+                <p className="text-white text-xs font-bold mt-0.5">App Store</p>
+              </div>
+            </div>
+          </div>
+          <p className="text-slate-600 text-[10px] text-center mt-3">Coming soon</p>
+        </div>
+
+        <Link
+          to="/jobs"
+          className="flex items-center justify-between gap-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl text-white text-sm font-semibold shadow-lg shadow-violet-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          Browse Jobs <ArrowRight size={15} />
+        </Link>
+      </div>
+    </div>
+  </div>
+
+  {/* Bottom bar */}
+  <div className="border-t border-white/[0.06]">
+    <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p className="text-slate-500 text-xs text-center sm:text-left">
+        © {new Date().getFullYear()} HireSetu. All rights reserved. Made with{" "}
+        <Heart size={11} className="inline text-red-400 -mt-0.5" fill="currentColor" />{" "}
+        in India.
+      </p>
+      <div className="flex items-center gap-5">
+        {[
+          { label: "Privacy", to: "/privacy" },
+          { label: "Terms",   to: "/terms"   },
+          { label: "Sitemap", to: "/"        },
+        ].map(({ label, to }) => (
+          <Link
+            key={label}
+            to={to}
+            className="text-slate-500 hover:text-violet-400 text-xs transition-colors"
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+    </div>
   </div>
 </footer>
-
-    </div>
+</div>
   );
 };
 
