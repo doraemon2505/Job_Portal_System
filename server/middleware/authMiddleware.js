@@ -9,35 +9,46 @@ const protect = async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
-      // Get token from header (Bearer <token>)
+      // 1. Get token
       token = req.headers.authorization.split(' ')[1];
 
-      // Verify token
+      // 2. Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token
-      req.user = await User.findById(decoded.id).select('-password');
-      req.user.role = decoded.role; // Ensure role is passed
+      // 3. Get user from DB
+      const user = await User.findById(decoded.id).select('-password');
+      // req.user.role = decoded.role; // Ensure role is passed to the request object
+
+      // 4. Check user exists
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+
+      // 5. Attach user to request
+      req.user = user;
+
+      // 6. Attach role (optional)
+      if (decoded.role) {
+        req.user.role = decoded.role;
+      }
 
       next();
     } catch (error) {
       console.log(error);
-      res.status(401).json({ message: 'Not authorized' });
+      return res.status(401).json({ message: 'Not authorized' });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+  } else {
+    return res.status(401).json({ message: 'No token provided' });
   }
 };
 
-// Admin middleware
+// ADMIN CHECK
 const adminOnly = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(401).json({ message: 'Not authorized as an admin' });
-    }
-}
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    return res.status(401).json({ message: 'Not authorized as admin' });
+  }
+};
 
 module.exports = { protect, adminOnly };
