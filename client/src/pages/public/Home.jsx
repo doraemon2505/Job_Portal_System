@@ -16,6 +16,7 @@ import {
   Heart, Phone, Mail,
 } from "lucide-react";
 
+
 // ─── Animated Counter Hook ────────────────────────────────────────────────────
 const useCounter = (target, duration = 2000, start = false) => {
   const [count, setCount] = useState(0);
@@ -699,7 +700,6 @@ const Home = () => {
       </section>
 
       {/* ── FOOTER MINI ───────────────────────────────── */}
-
 {/* ── FOOTER ────────────────────────────────────── */}
 <footer className="bg-slate-950 border-t border-white/[0.06]">
 
@@ -753,7 +753,7 @@ const Home = () => {
               { icon: Linkedin,  href: "https://linkedin.com",  label: "LinkedIn"  },
               { icon: Github,    href: "https://github.com",    label: "GitHub"    },
             ].map(({ icon: Icon, href, label }) => (
-              < a
+              <a
                 key={label}
                 href={href}
                 target="_blank"
