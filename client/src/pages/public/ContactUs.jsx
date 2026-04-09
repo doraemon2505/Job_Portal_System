@@ -1,4 +1,3 @@
-// pages/public/ContactUs.jsx
 import { useState } from "react";
 import api from "../../services/api";
 import {
@@ -32,7 +31,7 @@ const CSS = `
   .contact-input {
     width: 100%;
     background: transparent;
-    border: 1.5px solid;
+    border: 1px solid;
     border-radius: 14px;
     padding: 13px 16px 13px 44px;
     font-size: 14px;
@@ -44,8 +43,8 @@ const CSS = `
   .contact-input::placeholder { color: #94a3b8; }
 `;
 
-const INPUT_LIGHT = "border-slate-200 bg-slate-50 text-slate-900 focus:border-violet-400 focus:bg-white focus:ring-2 focus:ring-violet-500/20";
-const INPUT_ERROR = "border-red-300 bg-red-50 text-slate-900 focus:border-red-400 focus:ring-2 focus:ring-red-500/15";
+const INPUT_LIGHT = "border-slate-300 bg-white text-slate-900 dark:bg-slate-800 dark:text-white focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30";
+const INPUT_ERROR = "border-red-400 bg-red-50 text-slate-900 dark:bg-red-900/20 dark:text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/30";
 
 const CONTACTS = [
   {

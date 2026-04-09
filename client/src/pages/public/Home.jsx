@@ -15,6 +15,7 @@ import {
   Facebook, Instagram, Twitter, Linkedin, Github,
   Heart, Phone, Mail,
 } from "lucide-react";
+import api from "../../services/api";
 
 
 // ─── Animated Counter Hook ────────────────────────────────────────────────────
@@ -75,32 +76,13 @@ const categories = [
 ];
 
 // ─── Testimonials ─────────────────────────────────────────────────────────────
-const testimonials = [
-  {
-    name: "Rahul Sharma",
-    role: "Senior Dev @ Google",
-    avatar: "RS",
-    gradient: "from-violet-500 to-indigo-600",
-    text: "I landed my dream job within 3 weeks. The real-time application tracking saved me so much anxiety. Absolutely game-changing platform.",
-    rating: 5,
-  },
-  {
-    name: "Priya Patel",
-    role: "UX Designer @ Airbnb",
-    avatar: "PP",
-    gradient: "from-pink-500 to-rose-500",
-    text: "The one-click apply feature is insane. I applied to 40+ companies in one afternoon. Got callbacks from 12. Nothing else comes close.",
-    rating: 5,
-  },
-  {
-    name: "Ankit Verma",
-    role: "Data Scientist @ Meta",
-    avatar: "AV",
-    gradient: "from-orange-500 to-amber-500",
-    text: "Best job portal I've used in 8 years. The company culture insights and salary data helped me negotiate 30% higher. Incredible tool.",
-    rating: 5,
-  },
-];
+// const [testimonials, setTestimonials] = useState([]);
+
+// useEffect(() => {
+//   api.get("/review/approved")
+//     .then(res => setTestimonials(res.data.reviews || []))
+//     .catch(() => {});
+// }, []);
 
 // ─── Featured Jobs (Mock) ──────────────────────────────────────────────────────
 const featuredJobs = [
@@ -138,6 +120,14 @@ const Home = () => {
   useEffect(() => {
     const timer = setTimeout(() => setHeroVisible(true), 100);
     return () => clearTimeout(timer);
+  }, []);
+
+  const [testimonials, setTestimonials] = useState([]);
+
+  useEffect(() => {
+  api.get("/review/approved")
+    .then(res => setTestimonials(res.data.reviews || []))
+    .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -635,27 +625,21 @@ const Home = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="relative bg-white dark:bg-slate-900 rounded-2xl p-7 border border-slate-100 dark:border-slate-800 card-hover overflow-hidden"
-              >
-                <div className="noise" />
+            {testimonials.map((t, i) => (
+              <div key={t._id} className="relative bg-white dark:bg-slate-900 rounded-2xl p-7 border border-slate-100 dark:border-slate-800 card-hover overflow-hidden">
                 <div className="flex text-amber-400 gap-0.5 mb-5">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} size={14} fill="currentColor" />
+                  {Array.from({ length: t.rating || 5 }).map((_, idx) => (
+                    <Star key={idx} size={14} fill="currentColor" />
                   ))}
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm italic">
-                  "{t.text}"
-                </p>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm italic">"{t.message}"</p>
                 <div className="flex items-center gap-3 mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                    {t.avatar}
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${GRADS[i % GRADS.length]} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                    {t.name?.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <div className="font-semibold text-slate-900 dark:text-white text-sm">{t.name}</div>
-                    <div className="text-slate-400 text-xs">{t.role}</div>
+                    <div className="text-slate-400 text-xs">{t.role || t.email}</div>
                   </div>
                 </div>
               </div>

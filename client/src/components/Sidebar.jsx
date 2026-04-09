@@ -1,45 +1,11 @@
-// import { Link } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
-
-// const Sidebar = () => {
-//   const { logout } = useAuth();
-
-//   return (
-//     <div className="w-64 bg-gray-800 h-screen text-white flex flex-col">
-//       <div className="p-4 text-2xl font-bold border-b border-gray-700">
-//         Admin Panel
-//       </div>
-//       <nav className="flex-1 p-4 space-y-2">
-//         <Link to="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">Dashboard</Link>
-//         <Link to="/admin/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
-//         <Link to="/admin/contact" className="block py-2 px-4 hover:bg-gray-700 rounded">Contacts</Link>
-//         <Link to="/admin/job" className="block py-2 px-4 hover:bg-gray-700 rounded">Jobs</Link>
-//         <Link to="/admin/application" className="block py-2 px-4 hover:bg-gray-700 rounded">Applications</Link>
-//         <Link to="/" className="block py-2 px-4 hover:bg-gray-700 rounded text-gray-400">Back to Site</Link>
-//       </nav>
-//       <div className="p-4 border-t border-gray-700">
-//         <button 
-//           onClick={logout} 
-//           className="w-full bg-red-600 py-2 rounded hover:bg-red-700"
-//         >
-//           Logout
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Sidebar;
-
-
-// components/admin/Sidebar.jsx  (or public/Sidebar.jsx — move to admin folder)
+// components/admin/Sidebar.jsx
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   LayoutDashboard, Users, Briefcase, FileText,
   MessageSquare, Globe, LogOut, ChevronLeft,
-  ChevronRight, Zap, Shield
+  ChevronRight, Shield, Star, X
 } from "lucide-react";
 
 const STYLES = `
@@ -47,12 +13,16 @@ const STYLES = `
   * { font-family: 'Figtree', sans-serif; }
   .font-display { font-family: 'Syne', sans-serif !important; }
   @keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+  @keyframes modalUp { from{opacity:0;transform:scale(0.92) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
   .gradient-logo {
     background: linear-gradient(135deg,#7c3aed,#4f46e5,#0ea5e9);
     background-size:200% auto;
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     background-clip:text; animation: gradientShift 4s ease infinite;
   }
+  .overlay-in { animation: fadeIn  0.2s ease both; }
+  .modal-in   { animation: modalUp 0.3s cubic-bezier(0.34,1.2,0.64,1) both; }
 `;
 
 const NAV = [
@@ -61,24 +31,79 @@ const NAV = [
   { label: "Jobs",         to: "/admin/jobs",          icon: Briefcase       },
   { label: "Applications", to: "/admin/applications",  icon: FileText        },
   { label: "Contacts",     to: "/admin/contact",       icon: MessageSquare   },
+  { label: "Reviews",      to: "/admin/reviews",       icon: Star            },
 ];
 
+/* ── Logout Confirmation Modal ─────────────────────────────────────────────── */
+const LogoutModal = ({ onConfirm, onCancel }) => (
+  <div
+    className="fixed inset-0 z-[300] flex items-center justify-center p-4 overlay-in"
+    style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+    onClick={onCancel}
+  >
+    <div
+      className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 w-full max-w-sm overflow-hidden modal-in"
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="h-1 bg-gradient-to-r from-red-400 to-orange-500" />
+      <div className="p-7 text-center">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <LogOut size={28} className="text-red-500" />
+        </div>
+        <h3 className="font-display font-black text-xl text-slate-900 dark:text-white mb-2">
+          Sign out?
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+          Are you sure you want to sign out? You'll need to sign in again to access the admin panel.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-red-500/25"
+          >
+            Yes, Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
 const Sidebar = () => {
   const { logout, user } = useAuth();
   const location  = useLocation();
   const navigate  = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed,    setCollapsed]    = useState(false);
+  const [showLogout,   setShowLogout]   = useState(false);
 
   const isActive = (path) =>
     path === "/admin"
       ? location.pathname === "/admin"
       : location.pathname.startsWith(path);
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <>
       <style>{STYLES}</style>
+
+      {/* Logout Modal */}
+      {showLogout && (
+        <LogoutModal
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
 
       <aside
         className={`
@@ -153,7 +178,6 @@ const Sidebar = () => {
                 {active && !collapsed && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" />
                 )}
-                {/* Tooltip when collapsed */}
                 {collapsed && (
                   <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-xs font-semibold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-slate-700 shadow-xl z-50">
                     {label}
@@ -163,6 +187,7 @@ const Sidebar = () => {
             );
           })}
 
+          {/* Back to Site */}
           <div className="pt-3 mt-3 border-t border-slate-800">
             {!collapsed && (
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-3 mb-2">Site</p>
@@ -183,11 +208,11 @@ const Sidebar = () => {
           </div>
         </nav>
 
-        {/* Logout */}
+        {/* Sign Out — now opens modal */}
         <div className="p-3 border-t border-slate-800">
           <button
-            onClick={handleLogout}
-            title={collapsed ? "Logout" : undefined}
+            onClick={() => setShowLogout(true)}
+            title={collapsed ? "Sign Out" : undefined}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all group relative ${collapsed ? "justify-center" : ""}`}
           >
             <LogOut size={18} className="flex-shrink-0" />

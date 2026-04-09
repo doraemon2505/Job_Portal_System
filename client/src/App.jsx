@@ -24,6 +24,7 @@ import Jobs from './pages/public/Jobs';
 import JobDetails from './pages/public/JobDetails';
 import AdminApplicaion from './pages/admin/AdminApplicaion';
 import MyApplications from './pages/public/MyApplications';
+import AdminReview from "./pages/admin/AdminReview";
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
         <Route path='contact' element={<AdminContact />} />
         <Route path='jobs' element={<AdminJob />} />
         <Route path='applications' element={<AdminApplicaion />} />
+        <Route path="reviews" element={<AdminReview />} />
       </Route>
       
       {/* Fallback */}

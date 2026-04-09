@@ -8,7 +8,7 @@ import {
   X, LogOut, Briefcase, Bookmark, Bell, CheckCircle2, Clock,
   XCircle, AlertCircle, Eye, ExternalLink, ChevronRight,
   Image as ImageIcon, Link as LinkIcon, Sparkles, Loader2,
-  AlertTriangle, Building2, MapPin, Calendar
+  AlertTriangle, Building2, MapPin, Calendar,Star
 } from "lucide-react";
 
 const CSS = `
@@ -107,7 +107,7 @@ const Profile = () => {
   useEffect(() => {
     if (!user) return;
     setLoadingApps(true);
-    api.get("/application/my")
+    api.get("/application/my-applications")
       .then(res => setApplications(res.data?.applications || []))
       .catch(() => {})
       .finally(() => setLoadingApps(false));
@@ -116,15 +116,17 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // TODO: replace with your actual update endpoint
-      // await api.put("/auth/update", form);
-      await new Promise(r => setTimeout(r, 1000)); // simulate
-      if (updateUser) updateUser({ ...user, ...form });
-      setSaveMsg("Profile updated successfully!");
-      setEditing(false);
-      setTimeout(() => setSaveMsg(""), 3000);
-    } catch {
-      setSaveMsg("Failed to save. Please try again.");
+      const res = await api.put("/auth/profile/update", form);
+      if (res.data.success) {
+        if (updateUser) updateUser({ ...user, ...res.data.user });
+        const stored = JSON.parse(localStorage.getItem("user") || "{}");
+        localStorage.setItem("user", JSON.stringify({ ...stored, ...res.data.user }));
+        setSaveMsg("Profile updated successfully!");
+        setEditing(false);
+        setTimeout(() => setSaveMsg(""), 3000);
+      }
+    } catch (err) {
+      setSaveMsg(err.response?.data?.message || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -362,6 +364,7 @@ const Profile = () => {
                 )}
               </div>
             )}
+            <ReviewSection user={user} />
           </div>
         )}
 
