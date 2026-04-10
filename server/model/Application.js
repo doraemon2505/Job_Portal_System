@@ -49,7 +49,7 @@
 
 // server/middleware/authMiddleware.js
 const jwt  = require("jsonwebtoken");
-const User = require("../model/user");
+const User = require("./user");
 
 /* ─── protect ─────────────────────────────────────────────────────────────── */
 exports.protect = async (req, res, next) => {
