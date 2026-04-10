@@ -54,23 +54,42 @@ const PORT = process.env.PORT || 8000;
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "http://127.0.0.1:5173",
   "https://hiresetu.vercel.app",          // ← your Vercel URL
   /\.vercel\.app$/,                        // covers all preview deployments
 ];
 
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     // allow requests with no origin (mobile apps, curl, Postman)
+//     if (!origin) return callback(null, true);
+//     const allowed = allowedOrigins.some(o =>
+//       typeof o === "string" ? o === origin : o.test(origin)
+//     );
+//     if (allowed) callback(null, true);
+//     else callback(new Error(`CORS: origin ${origin} not allowed`));
+//   },
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+// }));
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (mobile apps, curl, Postman)
+  origin: function (origin, callback) {
+    // allow no origin (Postman, mobile apps)
     if (!origin) return callback(null, true);
-    const allowed = allowedOrigins.some(o =>
-      typeof o === "string" ? o === origin : o.test(origin)
-    );
-    if (allowed) callback(null, true);
-    else callback(new Error(`CORS: origin ${origin} not allowed`));
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // allow all .vercel.app
+    if (origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    return callback(null, false); // ❗ DO NOT THROW ERROR
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 // // app.options("/*", cors()); // preflight for all routes
