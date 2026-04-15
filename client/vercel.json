@@ -1,14 +1,8 @@
 {
-  "headers": [
+  "routes": [
     {
-      "source": "/robots.txt",
-      "headers": [{ "key": "Content-Type", "value": "text/plain" }]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
