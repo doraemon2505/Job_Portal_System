@@ -8,7 +8,7 @@ import {
   X, LogOut, Briefcase, Bookmark, Bell, CheckCircle2, Clock,
   XCircle, AlertCircle, Eye, ExternalLink, ChevronRight,
   Image as ImageIcon, Link as LinkIcon, Sparkles, Loader2,
-  AlertTriangle, Building2, MapPin, Calendar
+  AlertTriangle, Building2, MapPin, Calendar,Star
 } from "lucide-react";
 
 const CSS = `
@@ -107,7 +107,7 @@ const Profile = () => {
   useEffect(() => {
     if (!user) return;
     setLoadingApps(true);
-    api.get("/application/my")
+    api.get("/application/my-applications")
       .then(res => setApplications(res.data?.applications || []))
       .catch(() => {})
       .finally(() => setLoadingApps(false));
@@ -116,15 +116,17 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // TODO: replace with your actual update endpoint
-      // await api.put("/auth/update", form);
-      await new Promise(r => setTimeout(r, 1000)); // simulate
-      if (updateUser) updateUser({ ...user, ...form });
-      setSaveMsg("Profile updated successfully!");
-      setEditing(false);
-      setTimeout(() => setSaveMsg(""), 3000);
-    } catch {
-      setSaveMsg("Failed to save. Please try again.");
+      const res = await api.put("/auth/profile/update", form);
+      if (res.data.success) {
+        if (updateUser) updateUser({ ...user, ...res.data.user });
+        const stored = JSON.parse(localStorage.getItem("user") || "{}");
+        localStorage.setItem("user", JSON.stringify({ ...stored, ...res.data.user }));
+        setSaveMsg("Profile updated successfully!");
+        setEditing(false);
+        setTimeout(() => setSaveMsg(""), 3000);
+      }
+    } catch (err) {
+      setSaveMsg(err.response?.data?.message || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -362,6 +364,7 @@ const Profile = () => {
                 )}
               </div>
             )}
+            <ReviewSection user={user} />
           </div>
         )}
 
@@ -474,6 +477,105 @@ const Profile = () => {
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+
+export const ReviewSection = ({ user }) => {
+  const [form,    setForm]    = useState({ message: "", rating: 5, role: user?.role === "admin" ? "Admin" : "" });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error,   setError]   = useState("");
+  const [myReview, setMyReview] = useState(null);
+
+  useEffect(() => {
+    api.get("/review/my").then(res => setMyReview(res.data?.review || null)).catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.message.trim()) { setError("Please write your review."); return; }
+    setError(""); setLoading(true);
+    try {
+      await api.post("/review", { ...form, name: user?.name, email: user?.email });
+      setSuccess(true);
+      setMyReview({ ...form, name: user?.name, approved: false });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to submit. Try again.");
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-6 mt-5">
+      <div className="flex items-center gap-2 mb-5">
+        <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+          <Star size={16} className="text-amber-600 dark:text-amber-400" />
+        </div>
+        <h2 className="font-display font-bold text-lg text-slate-900 dark:text-white">Share Your Experience</h2>
+      </div>
+
+      {myReview ? (
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${myReview.approved ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"}`}>
+              {myReview.approved ? "✓ Published on homepage" : "⏳ Awaiting admin approval"}
+            </span>
+          </div>
+          <p className="text-slate-600 dark:text-slate-300 text-sm italic mt-2">"{myReview.message}"</p>
+          <p className="text-slate-400 text-xs mt-3">You've already submitted a review. Thank you! 🙏</p>
+        </div>
+      ) : success ? (
+        <div className="flex flex-col items-center py-8 gap-3 text-center">
+          <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center">
+            <CheckCircle2 size={26} className="text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <p className="font-display font-bold text-lg text-slate-900 dark:text-white">Review Submitted! 🎉</p>
+          <p className="text-slate-400 text-sm">Thank you for your feedback. Our admin will review it shortly.</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Star rating */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Rating</label>
+            <div className="flex gap-1">
+              {[1,2,3,4,5].map(n => (
+                <button key={n} type="button" onClick={() => setForm(f => ({ ...f, rating: n }))} className={`text-2xl transition-transform hover:scale-110 ${n <= form.rating ? "text-amber-400" : "text-slate-200 dark:text-slate-700"}`}>
+                  ★
+                </button>
+              ))}
+              <span className="ml-2 text-sm text-slate-400 self-center">{form.rating}/5</span>
+            </div>
+          </div>
+
+          {/* Role/Designation */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Your Role / Designation</label>
+            <input
+              type="text" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+              placeholder="e.g. Frontend Developer @ Google"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition-all"
+            />
+          </div>
+
+          {/* Review */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Your Review <span className="text-red-400">*</span></label>
+            <textarea
+              value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+              rows={4} placeholder="Share your experience with HireSetu..."
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400 transition-all resize-none"
+            />
+          </div>
+
+          {error && <p className="flex items-center gap-1.5 text-xs text-red-500"><AlertCircle size={12} />{error}</p>}
+
+          <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-violet-500/25 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-60">
+            {loading ? <><Loader2 size={15} className="animate-spin" /> Submitting…</> : <><Star size={14} /> Submit Review</>}
+          </button>
+          <p className="text-center text-xs text-slate-400">Your review will appear on our homepage after admin approval.</p>
+        </form>
+      )}
     </div>
   );
 };

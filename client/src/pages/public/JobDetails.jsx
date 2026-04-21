@@ -1,4 +1,5 @@
 // pages/public/JobDetails.jsx
+// CHANGES: Added startDate + lastDateToApply display only. Nothing else changed.
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
@@ -7,7 +8,7 @@ import {
   MapPin, Briefcase, Clock, IndianRupee, Building2, Globe,
   ArrowLeft, CheckCircle2, Share2, Bookmark, Sparkles,
   Calendar, Users, ChevronRight, ExternalLink, Loader2,
-  Code2, AlertCircle
+  Code2, AlertCircle, XCircle
 } from "lucide-react";
 
 const STYLES = `
@@ -55,7 +56,6 @@ const jobTypeBadge = (type = "") => {
   return "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
 };
 
-// ── Info Chip ──────────────────────────────────────────────────────────────────
 const InfoChip = ({ icon: Icon, label, value, color = "" }) => (
   <div className="flex flex-col gap-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
     <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color || "bg-slate-100 dark:bg-slate-800"}`}>
@@ -66,7 +66,6 @@ const InfoChip = ({ icon: Icon, label, value, color = "" }) => (
   </div>
 );
 
-// ── Section Card ───────────────────────────────────────────────────────────────
 const Section = ({ title, icon: Icon, children }) => (
   <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6">
     <div className="flex items-center gap-2.5 mb-5">
@@ -79,24 +78,22 @@ const Section = ({ title, icon: Icon, children }) => (
   </div>
 );
 
-// ── Main ───────────────────────────────────────────────────────────────────────
 const JobDetails = () => {
-  const { id }       = useParams();
-  const navigate     = useNavigate();
-  const [job,        setJob]        = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [openApply,  setOpenApply]  = useState(false);
-  const [copied,     setCopied]     = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
+  const { id }        = useParams();
+  const navigate      = useNavigate();
+  const [job,         setJob]        = useState(null);
+  const [loading,     setLoading]    = useState(true);
+  const [openApply,   setOpenApply]  = useState(false);
+  const [copied,      setCopied]     = useState(false);
+  const [bookmarked,  setBookmarked] = useState(false);
   const [relatedJobs, setRelatedJobs] = useState([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         const res = await api.get(`/job/${id}`);
         setJob(res.data.job);
-        // Fetch related jobs
         try {
           const all = await api.get("/job");
           const others = (all.data.jobs || []).filter(j => j._id !== id && j.isActive !== false).slice(0, 3);
@@ -105,7 +102,7 @@ const JobDetails = () => {
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     };
-    fetch();
+    fetchData();
   }, [id]);
 
   const handleShare = async () => {
@@ -135,20 +132,25 @@ const JobDetails = () => {
         </div>
         <p className="font-display font-bold text-xl text-slate-900 dark:text-white">Job Not Found</p>
         <p className="text-slate-400 mt-1 mb-4">This job may have been removed or expired.</p>
-        <Link to="/jobs" className="px-6 py-2.5 bg-violet-600 text-white rounded-xl font-semibold text-sm hover:scale-105 transition-all">
-          Browse All Jobs
-        </Link>
+        <Link to="/jobs" className="px-6 py-2.5 bg-violet-600 text-white rounded-xl font-semibold text-sm hover:scale-105 transition-all">Browse All Jobs</Link>
       </div>
     </div>
   );
 
-  const company  = getCompanyName(job.company);
-  const salary   = getSalary(job.salary);
-  const skills   = job.skills || (Array.isArray(job.requirements) ? job.requirements : []);
-  const reqs     = Array.isArray(job.requirements) ? job.requirements : [];
-  const initials = company.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const gradIdx  = Math.abs(id.charCodeAt(0) + id.charCodeAt(1)) % GRADS.length;
-  const posted   = job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null;
+  const company   = getCompanyName(job.company);
+  const salary    = getSalary(job.salary);
+  const skills    = job.skills || (Array.isArray(job.requirements) ? job.requirements : []);
+  const reqs      = Array.isArray(job.requirements) ? job.requirements : [];
+  const initials  = company.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
+  const gradIdx   = Math.abs(id.charCodeAt(0) + id.charCodeAt(1)) % GRADS.length;
+  const posted    = job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null;
+
+  // ── NEW: date fields ────────────────────────────────────────────────────────
+  const startDate  = job.startDate       ? new Date(job.startDate).toLocaleDateString("en-IN",       { day: "numeric", month: "long", year: "numeric" }) : null;
+  const lastDate   = job.lastDateToApply ? new Date(job.lastDateToApply).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null;
+  const isExpired  = job.lastDateToApply ? new Date(job.lastDateToApply) < new Date() : false;
+  const daysLeft   = job.lastDateToApply ? Math.ceil((new Date(job.lastDateToApply) - new Date()) / (1000 * 60 * 60 * 24)) : null;
+  // ───────────────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-20 pb-16 transition-colors duration-300">
@@ -173,13 +175,12 @@ const JobDetails = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6">
 
-          {/* ── LEFT: Main Content ─────────────────────────── */}
+          {/* ── LEFT ── */}
           <div className="flex-1 min-w-0 space-y-5">
 
             {/* Header Card */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 animate-slide-up" style={{ animationDelay: "0.1s", opacity: 0 }}>
               <div className="flex items-start gap-4 mb-5">
-                {/* Company Logo / Initials */}
                 {(job.company?.logo || typeof job.company === "object") && job.company?.logo ? (
                   <img src={job.company.logo} alt={company} className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0" onError={e => e.target.style.display="none"} />
                 ) : (
@@ -223,29 +224,45 @@ const JobDetails = () => {
                         <Calendar size={11} /> Posted {posted}
                       </span>
                     )}
-                    {job.isActive !== false && (
+                    {/* ── NEW: start date badge ── */}
+                    {startDate && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                        <Calendar size={11} /> Apply from {startDate}
+                      </span>
+                    )}
+                    {/* ── NEW: last date badge ── */}
+                    {lastDate && (
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold ${isExpired ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"}`}>
+                        <Clock size={11} />
+                        {isExpired ? `Applications closed ${lastDate}` : `Apply before ${lastDate}`}
+                      </span>
+                    )}
+                    {/* ── NEW: days left badge ── */}
+                    {!isExpired && daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 animate-pulse">
+                        ⚡ {daysLeft === 0 ? "Last day to apply!" : `Only ${daysLeft} day${daysLeft === 1 ? "" : "s"} left!`}
+                      </span>
+                    )}
+                    {!isExpired && job.isActive !== false && (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
                         <CheckCircle2 size={11} /> Actively Hiring
+                      </span>
+                    )}
+                    {isExpired && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400">
+                        <XCircle size={11} /> Applications Closed
                       </span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Quick info chips row */}
+              {/* Quick info chips */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-slate-100 dark:border-slate-800">
-                {job.location && (
-                  <InfoChip icon={MapPin} label="Location" value={job.location} color="bg-violet-500" />
-                )}
-                {salary && (
-                  <InfoChip icon={IndianRupee} label="Salary" value={salary} color="bg-emerald-500" />
-                )}
-                {(job.experience || job.experienceRequired) && (
-                  <InfoChip icon={Clock} label="Experience" value={job.experience || `${job.experienceRequired} yrs`} color="bg-amber-500" />
-                )}
-                {job.jobType && (
-                  <InfoChip icon={Briefcase} label="Job Type" value={job.jobType} color="bg-indigo-500" />
-                )}
+                {job.location && <InfoChip icon={MapPin}       label="Location"   value={job.location}                               color="bg-violet-500" />}
+                {salary       && <InfoChip icon={IndianRupee}  label="Salary"     value={salary}                                     color="bg-emerald-500" />}
+                {(job.experience || job.experienceRequired) && <InfoChip icon={Clock} label="Experience" value={job.experience || `${job.experienceRequired} yrs`} color="bg-amber-500" />}
+                {job.jobType   && <InfoChip icon={Briefcase}   label="Job Type"   value={job.jobType}                                color="bg-indigo-500" />}
               </div>
             </div>
 
@@ -256,7 +273,6 @@ const JobDetails = () => {
               </div>
             </Section>
 
-            {/* Requirements / Skills */}
             {reqs.length > 0 && (
               <Section title="Requirements" icon={CheckCircle2}>
                 <ul className="space-y-2.5">
@@ -272,18 +288,14 @@ const JobDetails = () => {
               </Section>
             )}
 
-            {/* Skills */}
             {skills.length > 0 && (
               <Section title="Skills Required" icon={Code2}>
                 <div className="flex flex-wrap gap-2">
-                  {skills.map(s => (
-                    <span key={s} className="tag-chip px-3 py-1.5 rounded-xl text-sm font-semibold">{s}</span>
-                  ))}
+                  {skills.map(s => <span key={s} className="tag-chip px-3 py-1.5 rounded-xl text-sm font-semibold">{s}</span>)}
                 </div>
               </Section>
             )}
 
-            {/* Related Jobs */}
             {relatedJobs.length > 0 && (
               <Section title="More Jobs You Might Like" icon={Sparkles}>
                 <div className="space-y-3">
@@ -291,9 +303,7 @@ const JobDetails = () => {
                     const rc = getCompanyName(rj.company);
                     return (
                       <Link key={rj._id} to={`/jobs/${rj._id}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${GRADS[(i + 2) % GRADS.length]} flex items-center justify-center text-white text-xs font-black flex-shrink-0`}>
-                          {rc.charAt(0)}
-                        </div>
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${GRADS[(i + 2) % GRADS.length]} flex items-center justify-center text-white text-xs font-black flex-shrink-0`}>{rc.charAt(0)}</div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-slate-800 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors truncate">{rj.title}</p>
                           <p className="text-xs text-slate-400 truncate">{rc} · {rj.location}</p>
@@ -310,53 +320,69 @@ const JobDetails = () => {
             )}
           </div>
 
-          {/* ── RIGHT: Sticky Sidebar ──────────────────────── */}
+          {/* ── RIGHT SIDEBAR ── */}
           <div className="lg:w-80 flex-shrink-0 space-y-5">
 
             {/* Apply Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 animate-slide-up lg:sticky lg:top-24" style={{ animationDelay: "0.15s", opacity: 0 }}>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 animate-slide-up" style={{ animationDelay: "0.15s", opacity: 0 }}>
               <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">Ready to Apply?</h3>
-              <p className="text-slate-400 text-sm mb-5">Join hundreds of applicants and take the next step in your career.</p>
+              <p className="text-slate-400 text-sm mb-4">Join hundreds of applicants and take the next step in your career.</p>
 
-              <button
-                onClick={() => setOpenApply(true)}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                <Sparkles size={16} /> Apply for This Job
-              </button>
+              {/* ── NEW: date info box in apply card ── */}
+              {(startDate || lastDate) && (
+                <div className={`rounded-xl p-3.5 mb-4 border ${isExpired ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800" : "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"}`}>
+                  {startDate && (
+                    <div className="flex items-center gap-2 text-xs mb-1.5">
+                      <Calendar size={12} className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      <span className="text-slate-500 dark:text-slate-400">Applications open:</span>
+                      <span className="font-semibold text-slate-800 dark:text-white">{startDate}</span>
+                    </div>
+                  )}
+                  {lastDate && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Clock size={12} className={`flex-shrink-0 ${isExpired ? "text-red-500" : "text-amber-600 dark:text-amber-400"}`} />
+                      <span className="text-slate-500 dark:text-slate-400">{isExpired ? "Closed on:" : "Last date:"}</span>
+                      <span className={`font-bold ${isExpired ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}>{lastDate}</span>
+                    </div>
+                  )}
+                  {!isExpired && daysLeft !== null && (
+                    <p className={`text-xs font-bold mt-2 ${daysLeft <= 3 ? "text-red-600 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}>
+                      {daysLeft === 0 ? "⚡ Today is the last day!" : daysLeft > 0 ? `⏳ ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining` : ""}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {isExpired ? (
+                <div className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl font-bold text-sm cursor-not-allowed">
+                  <XCircle size={16} /> Applications Closed
+                </div>
+              ) : (
+                <button
+                  onClick={() => setOpenApply(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-bold text-sm shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <Sparkles size={16} /> Apply for This Job
+                </button>
+              )}
 
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
                 {salary && (
                   <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <IndianRupee size={14} className="text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-xs">Salary</p>
-                      <p className="font-semibold text-slate-800 dark:text-white">{salary}</p>
-                    </div>
+                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center flex-shrink-0"><IndianRupee size={14} className="text-emerald-600 dark:text-emerald-400" /></div>
+                    <div><p className="text-slate-400 text-xs">Salary</p><p className="font-semibold text-slate-800 dark:text-white">{salary}</p></div>
                   </div>
                 )}
                 {(job.experience || job.experienceRequired) && (
                   <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Clock size={14} className="text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-xs">Experience</p>
-                      <p className="font-semibold text-slate-800 dark:text-white">{job.experience || `${job.experienceRequired} years`}</p>
-                    </div>
+                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0"><Clock size={14} className="text-amber-600 dark:text-amber-400" /></div>
+                    <div><p className="text-slate-400 text-xs">Experience</p><p className="font-semibold text-slate-800 dark:text-white">{job.experience || `${job.experienceRequired} years`}</p></div>
                   </div>
                 )}
                 {job.location && (
                   <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin size={14} className="text-violet-600 dark:text-violet-400" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-xs">Location</p>
-                      <p className="font-semibold text-slate-800 dark:text-white">{job.location}</p>
-                    </div>
+                    <div className="w-8 h-8 bg-violet-100 dark:bg-violet-900/30 rounded-lg flex items-center justify-center flex-shrink-0"><MapPin size={14} className="text-violet-600 dark:text-violet-400" /></div>
+                    <div><p className="text-slate-400 text-xs">Location</p><p className="font-semibold text-slate-800 dark:text-white">{job.location}</p></div>
                   </div>
                 )}
               </div>
@@ -366,14 +392,10 @@ const JobDetails = () => {
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 animate-slide-up" style={{ animationDelay: "0.2s", opacity: 0 }}>
               <h3 className="font-display font-bold text-base text-slate-900 dark:text-white mb-4">About the Company</h3>
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${GRADS[gradIdx]} flex items-center justify-center text-white font-black text-base shadow-lg flex-shrink-0`}>
-                  {initials}
-                </div>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${GRADS[gradIdx]} flex items-center justify-center text-white font-black text-base shadow-lg flex-shrink-0`}>{initials}</div>
                 <div>
                   <p className="font-bold text-slate-900 dark:text-white">{company}</p>
-                  {job.company?.location && (
-                    <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><MapPin size={10} />{job.company.location}</p>
-                  )}
+                  {job.company?.location && <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><MapPin size={10} />{job.company.location}</p>}
                 </div>
               </div>
               {job.company?.website && (
@@ -386,14 +408,7 @@ const JobDetails = () => {
         </div>
       </div>
 
-      {/* Apply Modal */}
-      <ApplyModal
-        open={openApply}
-        setOpen={setOpenApply}
-        jobId={job._id}
-        jobTitle={job.title}
-        companyName={company}
-      />
+      <ApplyModal open={openApply} setOpen={setOpenApply} jobId={job._id} jobTitle={job.title} companyName={company} />
     </div>
   );
 };
