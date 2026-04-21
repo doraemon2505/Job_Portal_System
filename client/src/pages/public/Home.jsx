@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import jobbackground from "../../assets/jobbackground.jpeg";
 import {
-  // ... your existing imports ...
+ 
   Facebook, Instagram, Twitter, Linkedin, Github,
   Heart, Phone, Mail,
 } from "lucide-react";
