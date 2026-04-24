@@ -135,13 +135,12 @@ connectDB();
 const app  = express();
 const PORT = process.env.PORT || 8000;
 
-// ── CORS ── allow all origins (simplest fix, works everywhere)
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
-app.options("/{*path}", cors());  // ← Express 5 wildcard syntax // ← handles preflight requests
+app.options("/{*path}", cors());
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -160,11 +159,11 @@ app.use('/api/review',      reviewRoutes);
 
 app.get('/', (req, res) => res.json({ success: true, message: 'HireSetu API running 🚀' }));
 
-app.use((req, res) => res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` }));
+app.use((req, res) => res.status(404).json({ success: false, message: 'Route not found' }));
 
 app.use((err, req, res, next) => {
   console.error("ERROR:", err.message);
-  res.status(err.status || 500).json({ success: false, message: err.message || "Server error" });
+  res.status(500).json({ success: false, message: err.message });
 });
 
-app.listen(PORT, () => console.log(`✅ Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server on port ${PORT}`));
