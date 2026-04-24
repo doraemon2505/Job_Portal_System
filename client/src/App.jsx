@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Layouts
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
+import AdminLogin from "./pages/admin/AdminLogin";
 
 // Pages
 import Home from './pages/public/Home';
@@ -25,6 +26,7 @@ import JobDetails from './pages/public/JobDetails';
 import AdminApplicaion from './pages/admin/AdminApplicaion';
 import MyApplications from './pages/public/MyApplications';
 import AdminReview from "./pages/admin/AdminReview";
+import ProtectedAdmin from './route/ProtectedAdmin';
 
 function App() {
   return (
@@ -35,7 +37,6 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="contact" element={<ContactUs />} />
         <Route path="jobs" element={<Jobs />} />
-        <Route path="jobs/:id" element={<JobDetails />} />
         <Route path="jobs/:id" element={<JobDetails />} />
         <Route path="my-applications" element={<MyApplications />} />
         
@@ -69,12 +70,23 @@ function App() {
       </Route>
 
       {/* Admin Routes with Admin Layout */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-        <Route path='users' element={<AdminUsers />} />
-        <Route path='contact' element={<AdminContact />} />
-        <Route path='jobs' element={<AdminJob />} />
-        <Route path='applications' element={<AdminApplicaion />} />
+      {/* Admin Login */}
+      <Route path="/admin" element={<AdminLogin />} />
+      
+      {/* Protected Admin Routes */}
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedAdmin>
+            <AdminLayout />
+          </ProtectedAdmin>
+       }
+      >
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="contact" element={<AdminContact />} />
+        <Route path="jobs" element={<AdminJob />} />
+        <Route path="applications" element={<AdminApplicaion />} />
         <Route path="reviews" element={<AdminReview />} />
       </Route>
       
